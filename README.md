@@ -1,6 +1,6 @@
-# ¿Quién es el oso?
+# Desafío Burgeadictos
 
-Juego teaser web (mobile-first) para una campaña de awareness. El afiche muestra solo un oso y un QR; una ruleta le asigna a cada jugador uno de 3 modos, y al ganarlo se revelan la marca, la dirección y un código de promo único.
+Juego web (mobile-first) para una campaña de awareness. El afiche muestra la marca, una burger y un QR; una ruleta le asigna a cada jugador uno de 3 modos, y al ganarlo obtiene un código de promo único para canjear en el local.
 
 ## Modos (uno al azar por jugador, queda guardado)
 - **La aventura del oso** (`modo-aventura.js`): runner en canvas por 3 zonas (Cerrillos 2020 → primer local 2022 → Providencia 2026). Saltar obstáculos, juntar ingredientes, esquivar "inventos raros".

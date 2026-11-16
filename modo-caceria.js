@@ -54,7 +54,7 @@ window.MODOS.caceria = function (api, ganar, ctx) {
         <div class="tag">¡Pieza ${n} de ${EST.length}!</div>
         ${piezasHTML(EST.length, n - 1)}
         <p class="pista">“${CFG.teaser.pistas[n - 1] || ""}”</p>
-        <button class="btn big" id="go">${completo ? "¡Revelar al oso!" : "Ver la siguiente pista"}</button>`);
+        <button class="btn big" id="go">${completo ? "¡Ver mi premio!" : "Ver la siguiente pista"}</button>`);
       abrirPieza(el, n - 1);
       $("#go").onclick = () => { sfx.tap(); if (completo) { if (!DEMO) store.set(KEY, { found: [] }); ganar(); } else mapa(); };
     }, `<div class="tag">Encontraste el afiche “${e.lugar}”</div><p class="small">Para quedarte con su pieza, supera este desafío:</p>`);

@@ -1,4 +1,4 @@
-/* ¿Quién es el oso? — núcleo: utilidades, ruleta de modos, revelación y retos cortos.
+/* Desafío Burgeadictos — núcleo: utilidades, ruleta de modos, revelación y retos cortos.
    Los modos grandes viven en modo-*.js y se registran en window.MODOS. */
 (() => {
   const CFG = window.CONFIG;
@@ -89,8 +89,9 @@
   }
 
   /* ---------- logo misterioso por piezas ---------- */
+  const FOTO = ["rover", "oklahoma", "libra", "tlc"][rand(4)];
   function piezasHTML(n, abiertas) {
-    return `<div class="mystery"><img src="assets/logo_blanco.webp" alt="">
+    return `<div class="mystery foto"><img src="assets/${FOTO}.webp" alt="">
       <div class="tiles" style="grid-template-columns:repeat(${n},1fr)">
         ${Array.from({ length: n }, (_, k) => `<div class="tile ${k < abiertas ? "gone" : ""}">?</div>`).join("")}
       </div></div>`;
@@ -126,11 +127,11 @@
     const demoBtns = DEMO ? `<p class="small">Modo demo — elegir modo:</p>
       <div class="btn-row">${CFG.juego.modos.map((m) => `<button class="btn alt" data-m="${m}">${CFG.modos[m].emoji} ${CFG.modos[m].nombre}</button>`).join("")}</div>` : "";
     const el = screen(`
-      <div class="tag">Desafío Providencia</div>
+      <img class="intro-logo" src="assets/logo_blanco.webp" alt="${CFG.marca.nombre}">
       <h1>${CFG.teaser.titulo}</h1>
-      <div class="silueta-wrap"><img class="silueta" src="assets/oso_blanco.webp" alt=""><div class="q">?</div></div>
+      <div class="intro-hero"><img class="intro-burger" src="assets/${FOTO}.webp" alt=""><img class="intro-oso" src="assets/oso_blanco.webp" alt=""></div>
       <p>${CFG.teaser.bajada}</p>
-      <p class="small">Al final te espera una dirección… y un premio.</p>
+      <p class="small">📍 ${CFG.marca.direccion}</p>
       <button class="btn big" id="go">${modoGuardado ? "Seguir mi desafío" : "🎰 Girar la ruleta"}</button>
       ${demoBtns}`);
     $("#go").onclick = () => { sfx.ok(); ruleta(); };
@@ -202,7 +203,7 @@
     const maps = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(M.mapsQuery)}`;
     const tiempo = p.segundos && p.modo !== "caceria" ? ` Lo lograste en ${p.segundos} s.` : "";
     screen(`
-      <div class="tag">${repetido ? "Ya descubriste al oso" : "¡Lo descubriste!"}</div>
+      <div class="tag">${repetido ? "Ya ganaste tu promo" : "¡Te la ganaste!"}</div>
       <img class="reveal-logo" src="assets/logo_blanco.webp" alt="${M.nombre}">
       <img class="oso-reveal" src="assets/oso_blanco.webp" alt="">
       <div class="cupon">
@@ -224,7 +225,7 @@
       <p class="small">${M.slogan}${tiempo} Saca pantallazo y a comer.</p>`);
     $("#code").onclick = () => { navigator.clipboard?.writeText(p.codigo).then(() => toast("Código copiado"), () => {}); };
     $("#share").onclick = async () => {
-      const data = { title: CFG.teaser.titulo, text: "¿Quién es el oso? 🐻🍔 Yo ya lo descubrí. Gira la ruleta y averígualo:", url: location.origin + location.pathname };
+      const data = { title: CFG.teaser.titulo, text: "Me gané una promo en Burgeadictos 🐻🍔 ¿Te atreves con el desafío?", url: location.origin + location.pathname };
       try {
         if (navigator.share) await navigator.share(data);
         else { await navigator.clipboard.writeText(`${data.text} ${data.url}`); toast("Link copiado"); }
@@ -270,7 +271,7 @@
     smash: { titulo: "Smash perfecto", emoji: "💥", desc: "Aplasta la carne justo cuando la aguja pase por la zona verde. Tres veces.", fn: jSmash },
     atrapa: { titulo: "Lo simple, hecho bien", emoji: "🐻", desc: "Mueve al oso y atrapa ingredientes de verdad. Esquiva los inventos raros.", fn: jAtrapa },
     memoria: { titulo: "Memoria del oso", emoji: "🧠", desc: "Encuentra todas las parejas antes de que se acabe el tiempo.", fn: jMemoria },
-    pistas: { titulo: "Pistas del oso", emoji: "🔎", desc: "Responde 3 preguntas sobre el misterioso cocinero. Si te pierdes, pide una pista.", fn: jPistas },
+    pistas: { titulo: "Pistas del oso", emoji: "🔎", desc: "Responde 3 preguntas sobre Burgeadictos. Si te pierdes, pide una pista.", fn: jPistas },
   };
 
   /* juega un reto al azar con reintentos; llama onWin al ganarlo */

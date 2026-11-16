@@ -48,7 +48,7 @@ window.MODOS.aventura = function (api, ganar) {
         <div class="tag">¡Llegaste!</div>
         ${piezasHTML(ZONAS.length, ZONAS.length - 1)}
         <p class="pista">“${CFG.teaser.pistas[ZONAS.length - 1] || ""}”</p>
-        <button class="btn big" id="go">¡Revelar al oso!</button>`);
+        <button class="btn big" id="go">¡Ver mi premio!</button>`);
       abrirPieza(el, ZONAS.length - 1);
       $("#go").onclick = () => { sfx.tap(); ganar(); };
     } else presentarZona();

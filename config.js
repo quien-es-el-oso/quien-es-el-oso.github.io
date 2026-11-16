@@ -14,13 +14,13 @@ window.CONFIG = {
 
   // Texto del teaser (antes de revelar la marca)
   teaser: {
-    titulo: "¿Quién es el oso?",
-    bajada: "Alguien en Providencia hace burgers de otro nivel. Gira la ruleta, supera el desafío que te toque y descubre quién es… y dónde encontrarlo.",
+    titulo: "Gánate tu burger",
+    bajada: "Gira la ruleta, supera el desafío que te toque y desbloquea una promo en Burgeadictos.",
     // Pistas que se desbloquean después de cada desafío ganado
     pistas: [
-      "Soy un oso polar… pero mi plancha nunca está fría.",
-      "Me escondo en Providencia, a la sombra de la torre más alta de Sudamérica.",
-      "Mi lema: lo simple, hecho bien.",
+      "Dato: nacimos en 2020 en una cocina de Cerrillos. El primer día vendimos 45 burgers.",
+      "Dato: carne 70/30, una sola molienda y grano grueso. Por eso es tan jugosa.",
+      "Dato: estamos frente al Hospital Metropolitano, a pasos del Costanera Center.",
     ],
   },
 
@@ -53,7 +53,7 @@ window.CONFIG = {
     },
     caceria: {
       nombre: "La cacería del oso", emoji: "🗺️",
-      desc: "El oso dejó afiches escondidos. Encuéntralos, supera el desafío de cada uno y arma el misterio pieza por pieza. Es el más difícil… y da los mejores premios.",
+      desc: "El oso dejó afiches por Providencia. Encuéntralos, supera el desafío de cada uno y junta las 3 piezas. Es el más difícil… y da los mejores premios.",
       // pesos de premio propios (mismo orden que "promos"): sin Oklahoma sola
       pesos: [0, 1, 2],
     },
