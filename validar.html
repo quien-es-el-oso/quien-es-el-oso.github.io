@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0d2c91">
+  <title>Validar código</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700;800;900&family=Pattaya&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body { user-select: text; -webkit-user-select: text; }
+    input {
+      width: 100%; font: 800 24px ui-monospace, Menlo, Consolas, monospace; text-align: center; letter-spacing: .06em;
+      text-transform: uppercase; padding: 16px; border-radius: 14px; border: 3px solid var(--crema);
+      background: var(--azul-osc); color: var(--crema); outline: none;
+    }
+    input:focus { border-color: var(--amarillo); }
+    .res { width: 100%; border-radius: 18px; padding: 20px; font-weight: 800; }
+    .res.valido { background: var(--verde); }
+    .res.vencido, .res.canjeado { background: var(--amarillo); color: var(--azul-osc); }
+    .res.invalido { background: var(--rojo); }
+    .res .big { font-size: 30px; font-weight: 900; }
+    ul { list-style: none; padding: 0; margin: 0; width: 100%; text-align: left; font: 600 14px ui-monospace, Consolas, monospace; }
+    li { padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,.15); display: flex; justify-content: space-between; gap: 8px; }
+  </style>
+</head>
+<body>
+  <div class="checker top"></div>
+  <main>
+    <section class="screen">
+      <img src="assets/logo_blanco.webp" alt="Burgeadictos" style="width:220px">
+      <div class="tag">Validador de caja</div>
+      <input id="in" placeholder="BA-XXXXXX-XXXX" autocomplete="off" autocapitalize="characters" spellcheck="false">
+      <button class="btn big" id="go">Validar</button>
+      <div id="out" style="width:100%"></div>
+      <h2 style="font-size:24px;margin-top:10px">Canjeados en este equipo</h2>
+      <ul id="list"></ul>
+      <p class="small">Prototipo: el registro de canjes vive en este dispositivo. En la versión real se guarda en un servidor y un código no se puede usar dos veces en ningún local.</p>
+    </section>
+  </main>
+  <div class="checker bottom"></div>
+
+  <script src="config.js"></script>
+  <script src="codigo.js"></script>
+  <script>
+    const KEY = "ba_canjeados";
+    const load = () => { try { return JSON.parse(localStorage.getItem(KEY)) || []; } catch (e) { return []; } };
+    const save = (l) => { try { localStorage.setItem(KEY, JSON.stringify(l)); } catch (e) {} };
+    const $in = document.getElementById("in"), $out = document.getElementById("out"), $list = document.getElementById("list");
+
+    function pintarLista() {
+      const l = load();
+      $list.innerHTML = l.length ? l.slice().reverse().map((c) => `<li><span>${c.codigo}</span><span>${c.promo}</span><span>${c.fecha}</span></li>`).join("") : "<li>Sin canjes todavía</li>";
+    }
+
+    function validar() {
+      const r = Codigo.validar($in.value);
+      const ya = r.codigo && load().find((c) => c.codigo === r.codigo);
+      if (r.estado === "invalido") {
+        $out.innerHTML = `<div class="res invalido"><div class="big">✖ NO VÁLIDO</div><p>El código no existe o fue modificado.</p></div>`;
+      } else if (ya) {
+        $out.innerHTML = `<div class="res canjeado"><div class="big">⚠ YA CANJEADO</div><p>${r.promo.nombre} · canjeado el ${ya.fecha}</p></div>`;
+      } else if (r.estado === "vencido") {
+        $out.innerHTML = `<div class="res vencido"><div class="big">⌛ VENCIDO</div><p>${r.promo.nombre} · venció el ${r.venceTexto}</p></div>`;
+      } else {
+        $out.innerHTML = `<div class="res valido"><div class="big">✔ VÁLIDO</div><p style="font-size:20px">${r.promo.nombre} — ${r.promo.precio}</p><p>Vence el ${r.venceTexto}</p><br><button class="btn" id="canjear">Marcar como canjeado</button></div>`;
+        document.getElementById("canjear").onclick = () => {
+          const l = load();
+          l.push({ codigo: r.codigo, promo: r.promo.nombre, fecha: new Date().toLocaleString("es-CL", { dateStyle: "short", timeStyle: "short" }) });
+          save(l); pintarLista(); validar();
+        };
+      }
+    }
+    document.getElementById("go").onclick = validar;
+    $in.addEventListener("keydown", (e) => { if (e.key === "Enter") validar(); });
+    pintarLista();
+  </script>
+</body>
+</html>
