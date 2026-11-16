@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0d2c91">
+  <title>Demo: ¿Quién es el oso?</title>
+  <meta name="robots" content="noindex">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700;800;900&family=Pattaya&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css?v=5">
+  <style>
+    body { user-select: text; -webkit-user-select: text; }
+    main { max-width: 560px; }
+    .modo-card { display: flex; gap: 14px; align-items: center; text-align: left; text-decoration: none; }
+    .modo-card .em { font-size: 48px; line-height: 1; flex: none; }
+    .modo-card h3 { font-family: "Pattaya"; font-weight: 400; font-size: 26px; margin: 0; }
+    .modo-card p { font-size: 13px; }
+    .modo-card .go { margin-left: auto; font-size: 26px; flex: none; }
+    .seccion { width: 100%; text-align: left; margin-top: 10px; }
+    .seccion > .tag { display: block; margin-bottom: 8px; }
+    .grid-afiches { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .grid-afiches a { display: block; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 0 var(--azul-osc); }
+    .grid-afiches img { display: block; width: 100%; height: auto; }
+    .grid-afiches span { display: block; font-size: 11px; font-weight: 800; text-align: center; margin-top: 4px; }
+    .links { display: grid; gap: 10px; }
+    .links .btn { text-align: center; }
+    code { font-size: 12px; background: rgba(255,255,255,.12); padding: 2px 6px; border-radius: 6px; }
+  </style>
+</head>
+<body>
+  <div class="checker top"></div>
+  <main>
+    <section class="screen">
+      <div class="tag">Modo presentación</div>
+      <h1 style="font-size:46px">¿Quién es el oso?</h1>
+      <p>Campaña teaser para <b>Burgeadictos</b>: afiches sin marca → juego → revelación + código de promo único.</p>
+
+      <div class="seccion">
+        <span class="tag">1 · Los 3 modos (elige cuál mostrar)</span>
+        <div style="display:grid;gap:12px" id="modos"></div>
+      </div>
+
+      <div class="seccion">
+        <span class="tag">2 · Como lo vive un cliente real</span>
+        <div class="links">
+          <a class="btn" href="index.html">🎰 Abrir el juego con ruleta</a>
+          <button class="btn alt" id="reset">↺ Reiniciar este celular</button>
+          <p class="small">El juego real guarda el modo que te tocó y un código por celular. "Reiniciar" borra eso para volver a girar la ruleta.</p>
+        </div>
+      </div>
+
+      <div class="seccion">
+        <span class="tag">3 · Afiches teaser (cacería: A, B y C)</span>
+        <div class="grid-afiches">
+          <div><a href="afiches/afiche_1.webp" target="_blank" rel="noopener"><img src="afiches/afiche_1.webp" alt="Afiche ¿Ya me conoces?"></a><span>A · PLANCHA</span></div>
+          <div><a href="afiches/afiche_2.webp" target="_blank" rel="noopener"><img src="afiches/afiche_2.webp" alt="Afiche Te estoy buscando"></a><span>B · SMASH</span></div>
+          <div><a href="afiches/afiche_3.webp" target="_blank" rel="noopener"><img src="afiches/afiche_3.webp" alt="Afiche No soy un oso cualquiera"></a><span>C · SETENTATREINTA</span></div>
+        </div>
+        <p class="small" style="margin-top:8px">Cada QR abre el juego con <code>?p=A</code>, <code>B</code> o <code>C</code>. En la demo de la cacería hay botones para simular el escaneo.</p>
+      </div>
+
+      <div class="seccion">
+        <span class="tag">4 · En la caja</span>
+        <div class="links">
+          <a class="btn alt" href="validar.html">✔ Validador de códigos</a>
+        </div>
+      </div>
+
+      <p class="small" style="margin-top:12px">En la demo aparece un botón <b>"Saltar ⏭"</b> abajo a la derecha para avanzar rápido. Nada de lo que juegues en demo queda guardado.</p>
+    </section>
+  </main>
+  <div class="checker bottom"></div>
+
+  <script src="config.js?v=5"></script>
+  <script>
+    const C = window.CONFIG;
+    document.getElementById("modos").innerHTML = C.juego.modos.map((m) => {
+      const M = C.modos[m];
+      return `<a class="card modo-card" href="index.html?demo=1&modo=${m}">
+        <span class="em">${M.emoji}</span>
+        <div><h3>${M.nombre}</h3><p>${M.desc}</p></div>
+        <span class="go">▶</span>
+      </a>`;
+    }).join("");
+    document.getElementById("reset").onclick = () => {
+      try { ["ba_modo", "ba_win", "ba_caza"].forEach((k) => localStorage.removeItem(k)); } catch (e) {}
+      const b = document.getElementById("reset");
+      b.textContent = "✓ Listo, puedes girar de nuevo";
+      setTimeout(() => (b.textContent = "↺ Reiniciar este celular"), 2000);
+    };
+  </script>
+</body>
+</html>

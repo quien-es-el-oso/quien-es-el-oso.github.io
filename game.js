@@ -119,6 +119,9 @@
     // Si ya está en la cacería y llega desde un afiche, directo a la cacería
     const modoGuardado = DEMO ? null : store.get("ba_modo");
     if (modoGuardado === "caceria" && PARAM_P) return empezar("caceria");
+    // Demo: ?demo=1&modo=cocina abre ese modo directo (lo usa demo.html)
+    const modoDemo = DEMO && params.get("modo");
+    if (modoDemo && CFG.modos[modoDemo] && window.MODOS[modoDemo]) return presentar(modoDemo);
 
     const demoBtns = DEMO ? `<p class="small">Modo demo — elegir modo:</p>
       <div class="btn-row">${CFG.juego.modos.map((m) => `<button class="btn alt" data-m="${m}">${CFG.modos[m].emoji} ${CFG.modos[m].nombre}</button>`).join("")}</div>` : "";
