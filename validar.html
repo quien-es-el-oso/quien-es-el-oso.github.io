@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#0d2c91">
   <title>Validar código</title>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700;800;900&family=Pattaya&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css?v=4">
   <style>
     body { user-select: text; -webkit-user-select: text; }
     input {
@@ -40,8 +40,8 @@
   </main>
   <div class="checker bottom"></div>
 
-  <script src="config.js"></script>
-  <script src="codigo.js"></script>
+  <script src="config.js?v=4"></script>
+  <script src="codigo.js?v=4"></script>
   <script>
     const KEY = "ba_canjeados";
     const load = () => { try { return JSON.parse(localStorage.getItem(KEY)) || []; } catch (e) { return []; } };
