@@ -136,6 +136,7 @@ a.btn { text-decoration: none; display: inline-block; }
 .chip:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--azul-osc); }
 .chip .layer { width: 56px; animation: none; margin: 0; }
 .chip .l-pan_top { height: 22px; }
+.chip .l-queso::after { display: none; }
 .chip.bad { animation: shake .35s; background: #ffd6d6; }
 @keyframes shake { 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
 

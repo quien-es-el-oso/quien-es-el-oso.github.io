@@ -77,7 +77,7 @@ window.MODOS.cocina = function (api, ganar) {
       $st.innerHTML = armado.map(layer).join("");
       if (!activo) { $guia.innerHTML = `<span class="small">Esperando pedidos…</span>`; return; }
       $guia.innerHTML = `<b class="script" style="font-size:22px">${activo.nombre}</b> ` +
-        activo.receta.map((k, i) => `<span class="paso ${i < armado.length ? "hecho" : i === armado.length ? "sig" : ""}">${ING[k].replace(" 70/30", "").replace(" (base)", "↓").replace(" (tapa)", "↑")}</span>`).join("");
+        activo.receta.map((k, i) => `<span class="paso ${i < armado.length ? "hecho" : i === armado.length ? "sig" : ""}">${ING[k].replace(" 70/30", "").replace(" (base)", " base").replace(" (tapa)", " tapa")}</span>`).join("");
     }
 
     function aviso(txt, ok) { $fb.className = "feedback " + (ok ? "ok" : "no"); $fb.textContent = txt; }
@@ -136,6 +136,8 @@ window.MODOS.cocina = function (api, ganar) {
 
     pintarArmado();
     slots.forEach(pintarSlot);
+    nuevoPedido();
+    proximo = 7;
 
     loop((dt) => {
       if (fin) return false;

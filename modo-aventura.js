@@ -4,9 +4,9 @@ window.MODOS.aventura = function (api, ganar) {
   const { screen, loop, listen, later, sfx, vibrar, rand, $, hud, piezasHTML, abrirPieza, setSkip, perdio, CFG } = api;
 
   const ZONAS = [
-    { nombre: "Cerrillos · 2020", sub: "Una plancha chica, 45 burgers el primer día.", cielo: ["#0a1a55", "#2a4bc0"], edif: "#081c5e", vel: 240, dur: 20, meta: 6 },
-    { nombre: "El primer local · 2022", sub: "Caerse también es parte de la receta.", cielo: ["#1b1446", "#5a3fa8"], edif: "#140f38", vel: 285, dur: 22, meta: 7 },
-    { nombre: "Providencia · 2026", sub: "A la sombra de la torre más alta de Sudamérica.", cielo: ["#050f3a", "#0d2c91"], edif: "#06134a", vel: 330, dur: 24, meta: 8, torre: true },
+    { nombre: "Cerrillos · 2020", sub: "Una plancha chica, 45 burgers el primer día.", cielo: ["#0a1a55", "#2a4bc0"], edif: "#081c5e", vel: 240, dur: 20, meta: 5 },
+    { nombre: "El primer local · 2022", sub: "Caerse también es parte de la receta.", cielo: ["#1b1446", "#5a3fa8"], edif: "#140f38", vel: 285, dur: 22, meta: 6 },
+    { nombre: "Providencia · 2026", sub: "A la sombra de la torre más alta de Sudamérica.", cielo: ["#050f3a", "#0d2c91"], edif: "#06134a", vel: 330, dur: 24, meta: 7, torre: true },
   ];
   const GOOD = ["🧀", "🥓", "🍅", "🥬", "🧅", "🥒", "🥩"];
   const BAD = ["🍍", "🍬", "🦑", "🍭", "🍌", "🐙"];
@@ -89,13 +89,13 @@ window.MODOS.aventura = function (api, ganar) {
     function nuevo() {
       const r = Math.random();
       const vel = Z.vel + t * 4;
-      if (r < 0.42) {
+      if (r < 0.36) {
         const o = OBST[rand(OBST.length - (zona === 0 ? 1 : 0))];
         ents.push({ tipo: "obst", e: o.e, x: W + 20, y: SUELO - o.h, w: o.w, h: o.h, vel });
-      } else if (r < 0.82) {
+      } else if (r < 0.86) {
         const alto = Math.random() < 0.5;
         ents.push({ tipo: "good", e: GOOD[rand(GOOD.length)], x: W + 20, y: alto ? SUELO - 150 : SUELO - 42, w: 30, h: 30, vel });
-        if (Math.random() < 0.35) ents.push({ tipo: "good", e: GOOD[rand(GOOD.length)], x: W + 60, y: alto ? SUELO - 150 : SUELO - 42, w: 30, h: 30, vel });
+        if (Math.random() < 0.5) ents.push({ tipo: "good", e: GOOD[rand(GOOD.length)], x: W + 60, y: alto ? SUELO - 150 : SUELO - 42, w: 30, h: 30, vel });
       } else {
         ents.push({ tipo: "bad", e: BAD[rand(BAD.length)], x: W + 20, y: SUELO - 110 - rand(30), w: 30, h: 30, vel: vel * 1.25 });
       }
