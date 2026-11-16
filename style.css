@@ -21,6 +21,7 @@ body {
   -webkit-user-select: none;
 }
 img { -webkit-user-drag: none; user-select: none; }
+input { user-select: text; -webkit-user-select: text; }
 
 /* franjas de cuadros de la marca */
 .checker {
@@ -205,6 +206,60 @@ a.btn { text-decoration: none; display: inline-block; }
 
 .toast { position: fixed; left: 50%; bottom: 40px; transform: translateX(-50%); background: var(--crema); color: var(--azul); padding: 10px 18px; border-radius: 999px; font-weight: 800; z-index: 20; animation: in .25s both; }
 .demo-skip { position: fixed; right: 12px; bottom: 24px; z-index: 30; font-size: 12px; padding: 8px 14px; opacity: .8; }
+
+/* ---------- ruleta ---------- */
+.ruleta { width: 100%; background: var(--crema); color: var(--azul); border-radius: var(--radius); padding: 28px 16px; box-shadow: 0 6px 0 var(--azul-osc); margin-top: 20px; }
+.ruleta-emoji { font-size: 96px; line-height: 1.1; }
+.ruleta-nombre { font-family: "Pattaya"; font-size: 34px; min-height: 44px; }
+
+/* ---------- aventura (runner) ---------- */
+.runner { width: 100%; height: min(64vh, 540px); border-radius: 18px; overflow: hidden; touch-action: none; box-shadow: 0 6px 0 var(--azul-osc); }
+.runner canvas { display: block; touch-action: none; }
+
+/* ---------- cocina ---------- */
+.pedidos { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; width: 100%; min-height: 76px; }
+.pedido { background: var(--blanco); color: var(--azul); border: 0; border-radius: 12px; padding: 6px 4px 8px; font-family: inherit; display: flex; flex-direction: column; align-items: center; gap: 2px; cursor: pointer; box-shadow: 0 3px 0 var(--azul-osc); animation: in .3s both; }
+.pedido.activo { outline: 3px solid var(--amarillo); }
+.pedido .cara { font-size: 24px; line-height: 1; }
+.pedido .pn { font-family: "Pattaya"; font-size: 18px; line-height: 1; }
+.pedido .pbar { display: block; width: 90%; height: 6px; background: #e3e6f3; border-radius: 3px; overflow: hidden; }
+.pedido .pbar b { display: block; height: 100%; width: 100%; background: var(--verde); }
+.plancha2 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; width: 100%; padding: 10px; border-radius: 16px; background: linear-gradient(#3a3f4a, #23262d); box-shadow: inset 0 -6px 0 #15171c; }
+.slot { position: relative; aspect-ratio: 1; border-radius: 50%; border: 0; cursor: pointer; font-family: inherit; touch-action: manipulation;
+  background: conic-gradient(var(--amarillo) var(--p, 0%), rgba(255,255,255,.08) 0); display: grid; place-items: center; }
+.slot .patty { width: 70%; height: 70%; border-radius: 50%; transition: all .15s; }
+.slot .slot-txt { position: absolute; font-weight: 900; font-size: 13px; color: #fff; text-shadow: 0 1px 3px #000; }
+.slot.vacia .patty { background: rgba(255,255,255,.06); width: 60%; height: 60%; border: 2px dashed rgba(255,255,255,.3); }
+.slot.vacia .slot-txt { font-size: 26px; opacity: .6; }
+.slot.bola .patty { width: 46%; height: 46%; background: radial-gradient(circle at 35% 35%, #d77a6a, #8e3a2e 70%); }
+.slot.cocinando .patty { width: 80%; height: 80%; background: radial-gradient(circle at 35% 35%, #a5583e, #6a3322 70%); animation: chis .25s infinite alternate; }
+.slot.lista .patty { width: 80%; height: 80%; background: radial-gradient(circle at 35% 35%, #9a6a3a, #5a3020 70%); box-shadow: 0 0 0 3px var(--verde), 0 0 18px var(--verde); animation: pulse .7s infinite; }
+.slot.quemada .patty { width: 80%; height: 80%; background: radial-gradient(circle at 35% 35%, #333, #0d0d0d 70%); }
+@keyframes chis { to { transform: scale(1.03) rotate(3deg); } }
+.mesa { width: 100%; background: var(--crema); color: var(--azul); border-radius: 14px; padding: 8px 10px; }
+.receta-guia { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; justify-content: center; min-height: 28px; }
+.receta-guia .paso { font-size: 11px; font-weight: 800; padding: 3px 7px; border-radius: 999px; background: #e3e6f3; }
+.receta-guia .paso.hecho { background: var(--verde); color: #fff; }
+.receta-guia .paso.sig { background: var(--azul); color: #fff; }
+.mesa-row { display: flex; align-items: flex-end; justify-content: space-between; }
+.stack.mini { min-height: 60px; width: 150px; margin: 0; transform: scale(.75); transform-origin: bottom left; }
+.listas { font-weight: 800; font-size: 12px; text-align: center; }
+.listas b { font-size: 26px; }
+.tray9 { grid-template-columns: repeat(3, 1fr); }
+.tray9 .chip { padding: 7px 4px 6px; font-size: 11px; }
+.tray9 .chip .layer { width: 44px; }
+
+/* ---------- cacería ---------- */
+.pista-card { text-align: center; }
+.estaciones { display: grid; gap: 8px; width: 100%; }
+.estacion { display: flex; gap: 12px; align-items: center; text-align: left; background: rgba(255,255,255,.08); border-radius: 14px; padding: 10px 14px; }
+.estacion.ok { background: rgba(46,204,113,.2); }
+.estacion .num { width: 34px; height: 34px; flex: none; border-radius: 50%; display: grid; place-items: center; font-weight: 900; background: var(--crema); color: var(--azul); }
+.estacion.ok .num { background: var(--verde); color: #fff; }
+.palabra-row { display: flex; gap: 8px; width: 100%; }
+.palabra-row input { flex: 1; min-width: 0; font: 800 16px Montserrat, sans-serif; text-transform: uppercase; padding: 12px 14px; border-radius: 999px; border: 2px solid var(--crema); background: var(--azul-osc); color: var(--crema); outline: none; }
+.palabra-row input:focus { border-color: var(--amarillo); }
+.palabra-row .btn { padding: 12px 20px; font-size: 16px; }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }

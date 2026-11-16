@@ -15,7 +15,7 @@ window.CONFIG = {
   // Texto del teaser (antes de revelar la marca)
   teaser: {
     titulo: "¿Quién es el oso?",
-    bajada: "Alguien en Providencia hace burgers de otro nivel. Supera 3 desafíos y descubre quién es… y dónde encontrarlo.",
+    bajada: "Alguien en Providencia hace burgers de otro nivel. Gira la ruleta, supera el desafío que te toque y descubre quién es… y dónde encontrarlo.",
     // Pistas que se desbloquean después de cada desafío ganado
     pistas: [
       "Soy un oso polar… pero mi plancha nunca está fría.",
@@ -33,11 +33,40 @@ window.CONFIG = {
   ],
 
   juego: {
-    desafiosPorPartida: 3,
-    // Pool de minijuegos disponibles (se eligen al azar)
-    pool: ["armar", "smash", "atrapa", "memoria", "pistas"],
+    // Modos grandes: a cada jugador le toca uno al azar (ruleta) y queda guardado
+    modos: ["aventura", "cocina", "caceria"],
+    // Minijuegos cortos que se usan en cada afiche de la cacería
+    retos: ["armar", "smash", "atrapa", "memoria", "pistas"],
     erroresPermitidos: 2,
     unCodigoPorDispositivo: true,
+  },
+
+  modos: {
+    aventura: {
+      nombre: "La aventura del oso", emoji: "🏃",
+      desc: "Corre con el oso desde Cerrillos hasta Providencia. Salta obstáculos, junta ingredientes y esquiva los inventos raros.",
+    },
+    cocina: {
+      nombre: "Hora peak en la plancha", emoji: "🔥",
+      desc: "Los pedidos no paran. Haz smash, saca la carne dorada antes de que se queme y arma 5 burgers antes de que los clientes se aburran.",
+      pedidosMeta: 5,
+    },
+    caceria: {
+      nombre: "La cacería del oso", emoji: "🗺️",
+      desc: "El oso dejó afiches escondidos. Encuéntralos, supera el desafío de cada uno y arma el misterio pieza por pieza. Es el más difícil… y da los mejores premios.",
+      // pesos de premio propios (mismo orden que "promos"): sin Oklahoma sola
+      pesos: [0, 1, 2],
+    },
+  },
+
+  // Afiches de la cacería. Cada afiche tiene un QR con ?p=<id> y su palabra secreta impresa.
+  // PENDIENTE: definir los lugares reales donde se pegan.
+  caceria: {
+    estaciones: [
+      { id: "A", lugar: "El mirador", pista: "Empieza donde miles suben al mirador más alto de Sudamérica.", palabra: "PLANCHA" },
+      { id: "B", lugar: "El metro", pista: "Donde dos líneas de metro se cruzan en Tobalaba, un oso te espera.", palabra: "SMASH" },
+      { id: "C", lugar: "La galería", pista: "Frente a un hospital, dentro de una galería, el oso guarda su último secreto.", palabra: "SETENTATREINTA" },
+    ],
   },
 
   codigo: {

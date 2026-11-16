@@ -1,9 +1,12 @@
-/* ¿Quién es el oso? — juego teaser */
+/* ¿Quién es el oso? — núcleo: utilidades, ruleta de modos, revelación y retos cortos.
+   Los modos grandes viven en modo-*.js y se registran en window.MODOS. */
 (() => {
   const CFG = window.CONFIG;
   const $app = document.getElementById("app");
   const $ = (s, r = document) => r.querySelector(s);
-  const DEMO = new URLSearchParams(location.search).has("demo");
+  const params = new URLSearchParams(location.search);
+  const DEMO = params.has("demo");
+  const PARAM_P = (params.get("p") || "").toUpperCase();
 
   /* ---------- utilidades ---------- */
   let cleanups = [];
@@ -60,6 +63,7 @@
     tap: () => beep(440, 0.04, "triangle", 0.04),
     ok: () => { beep(660, 0.08); setTimeout(() => beep(990, 0.1), 70); },
     no: () => beep(150, 0.25, "sawtooth", 0.06),
+    jump: () => beep(520, 0.07, "triangle", 0.05),
     win: () => [523, 659, 784, 1046].forEach((f, i) => setTimeout(() => beep(f, 0.15, "square", 0.05), i * 120)),
   };
   const $mute = $("#mute");
@@ -67,7 +71,7 @@
   pintarMute();
   $mute.onclick = () => { muted = !muted; store.set("ba_mute", muted); pintarMute(); sfx.tap(); };
 
-  /* ---------- ingredientes ---------- */
+  /* ---------- ingredientes (capas CSS) ---------- */
   const ING = {
     pan_base: "Pan (base)", carne: "Carne 70/30", queso: "Queso", tocino: "Tocino",
     pepinillos: "Pepinillos", cebolla: "Cebolla", tomate: "Tomate", lechuga: "Lechuga",
@@ -76,95 +80,114 @@
   const RAROS = ["pina", "platano", "gomitas"];
   const layer = (k) => `<div class="layer l-${k}"></div>`;
 
-  /* ---------- estado de la partida ---------- */
-  let S = null;
-  let skip = null; // modo demo
+  /* ---------- HUD de progreso ---------- */
   const $hud = $("#hud"), $dots = $("#dots");
-  function hud(show) {
-    $hud.hidden = !show;
-    if (show && S) $dots.innerHTML = S.desafios.map((_, k) => `<span class="${k < S.i ? "done" : k === S.i ? "now" : ""}"></span>`).join("");
+  function hud(n, i) {
+    if (n === false || n == null) { $hud.hidden = true; return; }
+    $hud.hidden = false;
+    $dots.innerHTML = Array.from({ length: n }, (_, k) => `<span class="${k < i ? "done" : k === i ? "now" : ""}"></span>`).join("");
   }
 
-  const JUEGOS = {
-    armar: { titulo: "Arma la burger", emoji: "🍔", desc: "Memoriza la receta secreta. Después ármala de abajo hacia arriba.", fn: jArmar },
-    smash: { titulo: "Smash perfecto", emoji: "💥", desc: "Aplasta la carne justo cuando la aguja pase por la zona verde. Tres veces.", fn: jSmash },
-    atrapa: { titulo: "Lo simple, hecho bien", emoji: "🐻", desc: "Mueve al oso y atrapa ingredientes de verdad. Esquiva los inventos raros.", fn: jAtrapa },
-    memoria: { titulo: "Memoria del oso", emoji: "🧠", desc: "Encuentra todas las parejas antes de que se acabe el tiempo.", fn: jMemoria },
-    pistas: { titulo: "Pistas del oso", emoji: "🔎", desc: "Responde 3 preguntas sobre el misterioso cocinero. Si te pierdes, pide una pista.", fn: jPistas },
-  };
+  /* ---------- logo misterioso por piezas ---------- */
+  function piezasHTML(n, abiertas) {
+    return `<div class="mystery"><img src="assets/logo_blanco.webp" alt="">
+      <div class="tiles" style="grid-template-columns:repeat(${n},1fr)">
+        ${Array.from({ length: n }, (_, k) => `<div class="tile ${k < abiertas ? "gone" : ""}">?</div>`).join("")}
+      </div></div>`;
+  }
+  function abrirPieza(el, idx) {
+    later(() => { const t = el.querySelectorAll(".tile")[idx]; if (t) { t.classList.add("gone"); sfx.ok(); } }, 450);
+  }
 
-  /* ---------- flujo ---------- */
+  /* ---------- modo demo ---------- */
+  let skip = null;
+  if (DEMO) {
+    const b = document.createElement("button");
+    b.className = "btn alt demo-skip"; b.textContent = "Saltar ⏭";
+    b.onclick = () => { if (skip) { const f = skip; skip = null; f(); } };
+    document.body.appendChild(b);
+  }
+  const setSkip = (fn) => { skip = fn; };
+
+  /* =========================================================
+     FLUJO PRINCIPAL
+     ========================================================= */
   function intro() {
     hud(false);
     const prev = CFG.juego.unCodigoPorDispositivo && !DEMO ? store.get("ba_win") : null;
     if (prev && prev.codigo && window.Codigo.hoy() <= prev.vence) return revelacion(prev, true);
-    screen(`
+    // Si ya está en la cacería y llega desde un afiche, directo a la cacería
+    const modoGuardado = DEMO ? null : store.get("ba_modo");
+    if (modoGuardado === "caceria" && PARAM_P) return empezar("caceria");
+
+    const demoBtns = DEMO ? `<p class="small">Modo demo — elegir modo:</p>
+      <div class="btn-row">${CFG.juego.modos.map((m) => `<button class="btn alt" data-m="${m}">${CFG.modos[m].emoji} ${CFG.modos[m].nombre}</button>`).join("")}</div>` : "";
+    const el = screen(`
       <div class="tag">Desafío Providencia</div>
       <h1>${CFG.teaser.titulo}</h1>
       <div class="silueta-wrap"><img class="silueta" src="assets/oso_blanco.webp" alt=""><div class="q">?</div></div>
       <p>${CFG.teaser.bajada}</p>
       <p class="small">Al final te espera una dirección… y un premio.</p>
-      <button class="btn big" id="go">¡Acepto el desafío!</button>`);
-    $("#go").onclick = () => {
-      sfx.ok();
-      S = { desafios: pick(CFG.juego.pool, CFG.juego.desafiosPorPartida), i: 0, errores: 0, t0: Date.now() };
-      siguiente();
+      <button class="btn big" id="go">${modoGuardado ? "Seguir mi desafío" : "🎰 Girar la ruleta"}</button>
+      ${demoBtns}`);
+    $("#go").onclick = () => { sfx.ok(); ruleta(); };
+    el.querySelectorAll("[data-m]").forEach((b) => (b.onclick = () => { sfx.ok(); presentar(b.dataset.m); }));
+  }
+
+  function ruleta() {
+    const lista = CFG.juego.modos.filter((m) => window.MODOS && window.MODOS[m]);
+    let modo = DEMO ? null : store.get("ba_modo");
+    const yaTenia = !!(modo && lista.includes(modo));
+    if (!yaTenia) {
+      modo = lista[rand(lista.length)];
+      if (!DEMO) store.set("ba_modo", modo);
+    }
+    if (yaTenia) return presentar(modo);
+    hud(false);
+    screen(`
+      <div class="tag">Tu desafío es…</div>
+      <div class="ruleta"><div class="ruleta-emoji" id="re">🎰</div><div class="ruleta-nombre" id="rn">…</div></div>`);
+    const re = $("#re"), rn = $("#rn");
+    let i = rand(lista.length), paso = 0;
+    const pasos = 14 + lista.indexOf(modo) + lista.length * 2 - (i % lista.length);
+    const tick = () => {
+      const m = lista[i % lista.length];
+      re.textContent = CFG.modos[m].emoji; rn.textContent = CFG.modos[m].nombre;
+      beep(300 + paso * 25, 0.04, "triangle", 0.04);
+      paso++; i++;
+      if (paso < pasos) later(tick, 60 + paso * paso * 1.4);
+      else later(() => { sfx.win(); vibrar([30, 40, 30]); presentar(modo); }, 700);
     };
+    // asegura que caiga en el modo elegido
+    i = (lista.indexOf(modo) - (pasos - 1) % lista.length + lista.length * 10) % lista.length;
+    tick();
   }
 
-  function siguiente() {
-    if (S.i >= S.desafios.length) return ganar();
-    hud(true);
-    const J = JUEGOS[S.desafios[S.i]];
+  function presentar(modo) {
+    const M = CFG.modos[modo];
+    hud(false);
     screen(`
-      <div class="tag">Desafío ${S.i + 1} de ${S.desafios.length}</div>
-      <div style="font-size:72px;line-height:1">${J.emoji}</div>
-      <h2>${J.titulo}</h2>
-      <p>${J.desc}</p>
+      <div class="tag">Te tocó</div>
+      <div style="font-size:84px;line-height:1">${M.emoji}</div>
+      <h2>${M.nombre}</h2>
+      <p>${M.desc}</p>
       <button class="btn big" id="go">¡Vamos!</button>`);
-    $("#go").onclick = () => { sfx.tap(); jugar(); };
+    $("#go").onclick = () => { sfx.tap(); empezar(modo); };
   }
 
-  function jugar() {
-    const win = once(() => { skip = null; sfx.win(); vibrar([40, 60, 40]); S.i++; entreDesafios(); });
-    const lose = once((msg) => { skip = null; perdio(msg); });
-    skip = win;
-    JUEGOS[S.desafios[S.i]].fn(win, lose);
+  function empezar(modo) {
+    const t0 = Date.now();
+    window.MODOS[modo](api, once(() => ganar(modo, t0)), { p: PARAM_P });
   }
 
-  function perdio(msg) {
-    sfx.no(); vibrar(200); S.errores++;
-    screen(`
-      <div style="font-size:72px;line-height:1">🐻</div>
-      <h2>¡Casi!</h2>
-      <p><b>${msg || ""}</b></p>
-      <p>El oso te da otra oportunidad… pero esta vez todo cambia.</p>
-      <button class="btn big" id="go">Reintentar</button>`);
-    $("#go").onclick = () => { sfx.tap(); jugar(); };
-  }
-
-  function entreDesafios() {
-    hud(true);
-    const n = S.desafios.length;
-    const el = screen(`
-      <div class="tag">Pista ${S.i} de ${n} desbloqueada</div>
-      <div class="mystery">
-        <img src="assets/logo_blanco.webp" alt="">
-        <div class="tiles" style="grid-template-columns:repeat(${n},1fr)">
-          ${Array.from({ length: n }, (_, k) => `<div class="tile ${k < S.i - 1 ? "gone" : ""}">?</div>`).join("")}
-        </div>
-      </div>
-      <p class="pista">“${CFG.teaser.pistas[S.i - 1] || ""}”</p>
-      <button class="btn big" id="go">${S.i >= n ? "¡Revelar al oso!" : "Siguiente desafío"}</button>`);
-    later(() => { const t = el.querySelectorAll(".tile")[S.i - 1]; if (t) { t.classList.add("gone"); sfx.ok(); } }, 450);
-    $("#go").onclick = () => { sfx.tap(); siguiente(); };
-  }
-
-  function ganar() {
-    const tot = CFG.promos.reduce((a, p) => a + p.peso, 0);
+  function ganar(modo, t0) {
+    setSkip(null);
+    const pesos = (CFG.modos[modo] && CFG.modos[modo].pesos) || CFG.promos.map((p) => p.peso);
+    const tot = pesos.reduce((a, b) => a + b, 0);
     let r = Math.random() * tot, idx = 0;
-    for (; idx < CFG.promos.length - 1; idx++) { r -= CFG.promos[idx].peso; if (r < 0) break; }
-    const premio = { ...window.Codigo.generar(idx), promoIdx: idx, segundos: Math.round((Date.now() - S.t0) / 1000) };
+    for (; idx < pesos.length - 1; idx++) { r -= pesos[idx]; if (r < 0) break; }
+    while (!pesos[idx]) idx = (idx + 1) % pesos.length;
+    const premio = { ...window.Codigo.generar(idx), promoIdx: idx, modo, segundos: Math.round((Date.now() - t0) / 1000) };
     if (!DEMO) store.set("ba_win", premio);
     revelacion(premio, false);
   }
@@ -174,6 +197,7 @@
     const promo = CFG.promos[p.promoIdx] || CFG.promos[0];
     const M = CFG.marca;
     const maps = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(M.mapsQuery)}`;
+    const tiempo = p.segundos && p.modo !== "caceria" ? ` Lo lograste en ${p.segundos} s.` : "";
     screen(`
       <div class="tag">${repetido ? "Ya descubriste al oso" : "¡Lo descubriste!"}</div>
       <img class="reveal-logo" src="assets/logo_blanco.webp" alt="${M.nombre}">
@@ -194,10 +218,10 @@
         <a class="btn alt" href="https://instagram.com/${M.instagram}" target="_blank" rel="noopener">@${M.instagram}</a>
       </div>
       <button class="btn alt" id="share">🐻 Desafía a un amigo</button>
-      <p class="small">${M.slogan}${p.segundos ? ` Lo lograste en ${p.segundos} s.` : ""} Saca pantallazo y a comer.</p>`);
+      <p class="small">${M.slogan}${tiempo} Saca pantallazo y a comer.</p>`);
     $("#code").onclick = () => { navigator.clipboard?.writeText(p.codigo).then(() => toast("Código copiado"), () => {}); };
     $("#share").onclick = async () => {
-      const data = { title: CFG.teaser.titulo, text: "¿Quién es el oso? 🐻🍔 Yo ya lo descubrí. Supera 3 desafíos y averígualo:", url: location.origin + location.pathname };
+      const data = { title: CFG.teaser.titulo, text: "¿Quién es el oso? 🐻🍔 Yo ya lo descubrí. Gira la ruleta y averígualo:", url: location.origin + location.pathname };
       try {
         if (navigator.share) await navigator.share(data);
         else { await navigator.clipboard.writeText(`${data.text} ${data.url}`); toast("Link copiado"); }
@@ -222,9 +246,48 @@
     setTimeout(() => c.remove(), 4500);
   }
 
+  /* pantalla genérica de "perdiste, reintenta" */
+  function perdio(msg, reintentar) {
+    sfx.no(); vibrar(200);
+    screen(`
+      <div style="font-size:72px;line-height:1">🐻</div>
+      <h2>¡Casi!</h2>
+      <p><b>${msg || ""}</b></p>
+      <p>El oso te da otra oportunidad… pero esta vez todo cambia.</p>
+      <button class="btn big" id="go">Reintentar</button>`);
+    $("#go").onclick = () => { sfx.tap(); reintentar(); };
+  }
+
   /* =========================================================
-     MINIJUEGOS — cada uno recibe win() y lose(mensaje)
+     RETOS CORTOS — cada uno recibe win() y lose(mensaje).
+     Se usan en cada afiche de la cacería.
      ========================================================= */
+  const RETOS = {
+    armar: { titulo: "Arma la burger", emoji: "🍔", desc: "Memoriza la receta secreta. Después ármala de abajo hacia arriba.", fn: jArmar },
+    smash: { titulo: "Smash perfecto", emoji: "💥", desc: "Aplasta la carne justo cuando la aguja pase por la zona verde. Tres veces.", fn: jSmash },
+    atrapa: { titulo: "Lo simple, hecho bien", emoji: "🐻", desc: "Mueve al oso y atrapa ingredientes de verdad. Esquiva los inventos raros.", fn: jAtrapa },
+    memoria: { titulo: "Memoria del oso", emoji: "🧠", desc: "Encuentra todas las parejas antes de que se acabe el tiempo.", fn: jMemoria },
+    pistas: { titulo: "Pistas del oso", emoji: "🔎", desc: "Responde 3 preguntas sobre el misterioso cocinero. Si te pierdes, pide una pista.", fn: jPistas },
+  };
+
+  /* juega un reto al azar con reintentos; llama onWin al ganarlo */
+  function jugarReto(onWin, encabezado) {
+    const key = CFG.juego.retos[rand(CFG.juego.retos.length)];
+    const R = RETOS[key];
+    screen(`
+      ${encabezado || ""}
+      <div style="font-size:72px;line-height:1">${R.emoji}</div>
+      <h2>${R.titulo}</h2>
+      <p>${R.desc}</p>
+      <button class="btn big" id="go">¡Vamos!</button>`);
+    $("#go").onclick = () => {
+      sfx.tap();
+      const win = once(() => { setSkip(null); sfx.win(); vibrar([40, 60, 40]); onWin(); });
+      const lose = once((msg) => { setSkip(null); perdio(msg, () => jugarReto(onWin, encabezado)); });
+      setSkip(win);
+      R.fn(win, lose);
+    };
+  }
 
   /* 1. Arma la burger: memoria de receta aleatoria */
   function jArmar(win, lose) {
@@ -296,6 +359,7 @@
       speed = 60 + hits * 25 + Math.random() * 30;
       dir = Math.random() < 0.5 ? 1 : -1;
       pos = dir > 0 ? 0 : 100;
+      N.style.left = pos + "%";
     }
     ronda();
     loop((dt) => {
@@ -408,7 +472,6 @@
       <p class="small">Un vistazo rápido al inicio… ¡atento!</p>`);
     const tm = $("#tm"), pr = $("#pr");
     const all = [...el.querySelectorAll(".mcard")];
-    // vistazo inicial
     later(() => all.forEach((c) => c.classList.add("flip")), 300);
     later(() => { all.forEach((c) => c.classList.remove("flip")); lock = false; }, 1700);
     let acc = 0;
@@ -469,13 +532,12 @@
     show();
   }
 
-  /* ---------- modo demo (para presentar): ?demo=1 ---------- */
-  if (DEMO) {
-    const b = document.createElement("button");
-    b.className = "btn alt demo-skip"; b.textContent = "Saltar desafío ⏭";
-    b.onclick = () => { if (skip) skip(); };
-    document.body.appendChild(b);
-  }
+  /* ---------- API compartida con los modos ---------- */
+  const api = {
+    CFG, DEMO, $, screen, later, loop, listen, once, rand, shuffle, pick, clamp, vibrar, store, toast, hearts,
+    beep, sfx, ING, RAROS, layer, hud, piezasHTML, abrirPieza, setSkip, perdio, jugarReto, RETOS,
+  };
+  window.BA = api;
 
-  intro();
+  window.addEventListener("DOMContentLoaded", intro);
 })();
