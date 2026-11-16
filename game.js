@@ -24,7 +24,7 @@
   const later = (fn, ms) => { const t = setTimeout(fn, ms); cleanups.push(() => clearTimeout(t)); };
   function loop(fn) {
     let id, last = performance.now();
-    const f = (t) => { const dt = Math.min(50, t - last) / 1000; last = t; if (fn(dt) !== false) id = requestAnimationFrame(f); };
+    const f = (t) => { const dt = Math.min(100, t - last) / 1000; last = t; if (fn(dt) !== false) id = requestAnimationFrame(f); };
     id = requestAnimationFrame(f);
     cleanups.push(() => cancelAnimationFrame(id));
   }

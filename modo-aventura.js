@@ -172,8 +172,14 @@ window.MODOS.aventura = function (api, ganar) {
       }
     }
 
-    loop((dt) => {
+    loop((dtReal) => {
       if (fin) return false;
+      // física en pasos de máx. 1/60 s: misma velocidad aunque el celular vaya lento
+      for (let rem = dtReal; rem > 1e-4 && !fin; rem -= 1 / 60) paso(Math.min(rem, 1 / 60));
+      dibujar();
+    });
+
+    function paso(dt) {
       t += dt; scroll += (Z.vel + t * 4) * dt;
       inv = Math.max(0, inv - dt); shake = Math.max(0, shake - dt);
       // física
@@ -199,7 +205,6 @@ window.MODOS.aventura = function (api, ganar) {
         }
       }
       for (let i = pops.length - 1; i >= 0; i--) { pops[i].y -= 40 * dt; pops[i].v -= dt * 1.4; if (pops[i].v <= 0) pops.splice(i, 1); }
-      dibujar();
       if (vidas <= 0) {
         fin = true; setSkip(null);
         later(() => perdio("Te tropezaste en " + Z.nombre.split(" ·")[0] + ".", presentarZona), 400);
@@ -208,6 +213,6 @@ window.MODOS.aventura = function (api, ganar) {
         if (junt >= Z.meta) later(terminarZona, 300);
         else later(() => perdio(`Llegaste, pero con ${junt} de ${Z.meta} ingredientes. Sin ingredientes no hay burger.`, presentarZona), 300);
       }
-    });
+    }
   }
 };
