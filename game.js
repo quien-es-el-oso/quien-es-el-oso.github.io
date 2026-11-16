@@ -88,7 +88,7 @@
   const JUEGOS = {
     armar: { titulo: "Arma la burger", emoji: "🍔", desc: "Memoriza la receta secreta. Después ármala de abajo hacia arriba.", fn: jArmar },
     smash: { titulo: "Smash perfecto", emoji: "💥", desc: "Aplasta la carne justo cuando la aguja pase por la zona verde. Tres veces.", fn: jSmash },
-    atrapa: { titulo: "Lo simple, hecho bien", emoji: "🐻‍❄️", desc: "Mueve al oso y atrapa ingredientes de verdad. Esquiva los inventos raros.", fn: jAtrapa },
+    atrapa: { titulo: "Lo simple, hecho bien", emoji: "🐻", desc: "Mueve al oso y atrapa ingredientes de verdad. Esquiva los inventos raros.", fn: jAtrapa },
     memoria: { titulo: "Memoria del oso", emoji: "🧠", desc: "Encuentra todas las parejas antes de que se acabe el tiempo.", fn: jMemoria },
     pistas: { titulo: "Pistas del oso", emoji: "🔎", desc: "Responde 3 preguntas sobre el misterioso cocinero. Si te pierdes, pide una pista.", fn: jPistas },
   };
@@ -135,7 +135,7 @@
   function perdio(msg) {
     sfx.no(); vibrar(200); S.errores++;
     screen(`
-      <div style="font-size:72px;line-height:1">🐻‍❄️</div>
+      <div style="font-size:72px;line-height:1">🐻</div>
       <h2>¡Casi!</h2>
       <p><b>${msg || ""}</b></p>
       <p>El oso te da otra oportunidad… pero esta vez todo cambia.</p>
@@ -193,11 +193,11 @@
         <a class="btn" href="${maps}" target="_blank" rel="noopener">Cómo llegar</a>
         <a class="btn alt" href="https://instagram.com/${M.instagram}" target="_blank" rel="noopener">@${M.instagram}</a>
       </div>
-      <button class="btn alt" id="share">🐻‍❄️ Desafía a un amigo</button>
+      <button class="btn alt" id="share">🐻 Desafía a un amigo</button>
       <p class="small">${M.slogan}${p.segundos ? ` Lo lograste en ${p.segundos} s.` : ""} Saca pantallazo y a comer.</p>`);
     $("#code").onclick = () => { navigator.clipboard?.writeText(p.codigo).then(() => toast("Código copiado"), () => {}); };
     $("#share").onclick = async () => {
-      const data = { title: CFG.teaser.titulo, text: "¿Quién es el oso? 🐻‍❄️🍔 Yo ya lo descubrí. Supera 3 desafíos y averígualo:", url: location.origin + location.pathname };
+      const data = { title: CFG.teaser.titulo, text: "¿Quién es el oso? 🐻🍔 Yo ya lo descubrí. Supera 3 desafíos y averígualo:", url: location.origin + location.pathname };
       try {
         if (navigator.share) await navigator.share(data);
         else { await navigator.clipboard.writeText(`${data.text} ${data.url}`); toast("Link copiado"); }
@@ -451,7 +451,7 @@
         <div class="lives" id="lv"></div>
         <p style="font-weight:900;font-size:21px">${q.q}</p>
         <div class="opts">${opts.map((o, k) => `<button class="opt" data-i="${k}">${o}</button>`).join("")}</div>
-        <button class="hint-btn" id="hb">🐻‍❄️ Pedir pista</button>
+        <button class="hint-btn" id="hb">🐻 Pedir pista</button>
         <p class="small" id="ht"></p>`);
       hearts($("#lv"), vidas, total);
       $("#hb").onclick = () => { $("#ht").textContent = q.pista; $("#hb").remove(); sfx.tap(); };

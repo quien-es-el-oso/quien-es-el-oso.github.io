@@ -36,6 +36,7 @@ img { -webkit-user-drag: none; user-select: none; }
   display: flex; justify-content: space-between; align-items: center;
   padding: 10px 16px; max-width: 480px; margin: 0 auto;
 }
+.hud[hidden] { display: none; }
 .dots { display: flex; gap: 6px; }
 .dots span { width: 26px; height: 8px; border-radius: 4px; background: rgba(255,255,255,.25); transition: background .3s; }
 .dots span.done { background: var(--amarillo); }
